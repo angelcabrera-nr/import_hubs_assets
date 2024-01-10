@@ -84,13 +84,17 @@ with open(csv_file, "r") as filestream:
         print("downloading " + url)
         filedata = requests.get(url)
         if ext == ".json": 
-          #modified_json_string = re.sub(re.escape(old_string), new_string, json_content)
-          #WARNING, CHECK THIS, I had b"metabi-poc-hub.com" before, but I need f"..." to use a variable instead
-          # but now I probably have a byte vs text issue here that will need either .encode or .decode
-          new_content = filedata.content.replace(f"{old_domain}",f"{hubs_domain}").decode('utf-8') #???
-          doms_list = list(find_all(new_content,hubs_domain))
-          # From the starting letter of metabi-poc-hub to the start of the uuid is 25 characters
-          # then the uuid is 36 characters long
+          # Convert the domain strings to bytes
+          old_domain_bytes = old_domain.encode('utf-8')
+          hubs_domain_bytes = hubs_domain.encode('utf-8')
+        
+            # Replace the old domain with the new domain in the byte-like content
+          new_content_bytes = filedata.content.replace(old_domain_bytes, hubs_domain_bytes)
+        
+            # Decode the byte-like object to a string for further processing
+          new_content = new_content_bytes.decode('utf-8')
+          doms_list = list(find_all(new_content, hubs_domain))
+          
           for d in doms_list:
             prev_uuid = new_content[d+25:d+25+36]
             if prev_uuid in uuids:
